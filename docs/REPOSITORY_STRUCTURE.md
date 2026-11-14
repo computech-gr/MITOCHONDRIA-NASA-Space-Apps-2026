@@ -1,0 +1,195 @@
+# Repository Structure
+
+```text
+.github/
+  workflows/quality.yml       CI quality gate
+.lovable/
+  project.json                Lovable project metadata
+public/
+  favicon.png                 public icon
+  manifest.webmanifest        PWA manifest foundation
+  robots.txt                  crawler directives
+src/
+  app/                        application-layer boundary
+  assets/                     visual assets
+  components/                 public shell and reusable UI
+  domain/                     P3 canonical health/science contracts + tests
+  hooks/                      reusable React hooks
+  infrastructure/             runtime/infrastructure configuration
+  integrations/
+    device-adapters/          P5 vendor-neutral adapter SDK + reference fixture
+    wearables/                P6 BLE/mobile-health/vendor-cloud adapters
+    medical-lab/              P7 FHIR/CSV/manual/medical-device ingestion
+    environmental-telemetry/  P8 habitat/environment + radiation adapters
+    supabase/                 generated/current Supabase client boundary
+  lib/                        shared technical utilities
+  routes/                     TanStack Start routes
+  router.tsx                  router initialization
+  server.ts                   server entry/wrapper
+  start.ts                    application start integration
+  styles.css                  global design system/styles
+tests/
+  domain/                     P3 synthetic domain-contract tests
+supabase/
+  config.toml                 Supabase project configuration; no P3 schema migrations
+AGENTS.md                      Lovable/Git collaboration constraints
+CODE_OF_CONDUCT.md             contributor conduct
+CONTRIBUTING.md                contribution rules
+CITATIONS.md                   scientific/resource registry
+LICENSE                        Apache-2.0
+README.md                      project overview and setup
+SECURITY.md                    vulnerability reporting policy
+.env.example                   safe environment template
+bun.lock                       deterministic dependency lockfile
+package.json                   scripts and dependencies
+```
+
+Generated files such as `src/routeTree.gen.ts` should not be manually edited unless the framework specifically requires it.
+
+- `docs/CANONICAL_HEALTH_DATA.md` — P4 canonical metric/ingestion/round-trip contract.
+- `docs/SCIENTIFIC_BASELINE_V1_1.md` — reviewed biologist baseline decisions and traceability hash.
+- `scripts/verify-p4.mjs` — P4 structural/safety verifier.
+- `tests/domain/p4-canonical-data.test.ts` — canonical registry, unit, round-trip, series and safety tests.
+
+- `docs/DEVICE_ADAPTER_SDK.md` — P5 adapter lifecycle, safety and normalization boundary.
+- `scripts/verify-p5.mjs` — P5 structural/safety verifier.
+- `tests/integrations/p5-device-adapter-sdk.test.ts` — adapter lifecycle and P4 normalization tests.
+
+- `docs/WEARABLES_INTEGRATION.md` — P6 source classes, bridge boundaries and safety constraints.
+- `scripts/verify-p6.mjs` — P6 structural/safety verifier.
+- `tests/integrations/p6-wearables-integration.test.ts` — BLE, Health Connect, HealthKit and vendor-cloud conformance tests.
+
+- `src/integrations/medical-lab/` — P7 FHIR/CSV/manual biomarker and medical-device ingestion boundary.
+- `tests/integrations/p7-medical-lab-integration.test.ts` — P7 provenance, fail-closed mapping and medical-device canonicalization tests.
+- `docs/MEDICAL_LAB_INTEGRATION.md` — P7 integration and safety contract.
+
+- `src/integrations/environmental-telemetry/` — P8 habitat/environment and personal-radiation telemetry boundaries.
+- `tests/integrations/p8-environmental-radiation.test.ts` — P8 canonicalization, context, fail-closed and Gy/Sv separation tests.
+- `docs/ENVIRONMENTAL_RADIATION_TELEMETRY.md` — P8 integration and safety contract.
+- `scripts/verify-p8.mjs` — P8 structural/safety verifier.
+
+- `src/app/live-dashboard/` — P9 mission-local dashboard state, freshness and timeline contracts.
+- `src/components/live-dashboard.tsx` — astronaut-facing live console with zero-install camera PPG, phone motion and direct BLE source paths.
+- `src/components/device-integration-center.tsx` / `src/routes/mission.devices.tsx` — capability-aware zero-install source discovery and judge-facing integration overview.
+- `src/integrations/browser-sensors/` — browser camera PPG, phone motion, capability detection and deterministic PPG estimation utilities.
+- `docs/ZERO_INSTALL_LIVE_DEVICE_DEMO.md` — controlled cross-platform live hardware demo runbook.
+- `src/routes/mission.live.tsx` — `/mission/live` route and canonical metadata.
+- `tests/app/p9-live-dashboard.test.ts` — deterministic live/stale/disconnected, trend and self-check tests.
+- `docs/LIVE_DASHBOARD.md` — P9 scope, source alignment and persistence/safety boundaries.
+
+### P10 personal baseline
+
+- `src/domain/baseline/` — phase-aware baseline contracts, profile construction and personalized comparison.
+- `tests/domain/p10-personal-baseline.test.ts` — minimum-data, rolling-window, phase-selection, context and dashboard-delta tests.
+- `scripts/verify-p10.mjs` — P10 structural/safety gate.
+- `docs/PERSONAL_BASELINE_ENGINE.md` — scientific and implementation boundary for personal baselines.
+
+### P11 cognitive & behavioral module
+
+- `src/domain/cognitive-behavioral/` — governed assessment contracts, scoring and canonical ingestion.
+- `src/app/readiness-assessment/` — readiness workflow state; accepted P11 records can cross the P14 encrypted local persistence boundary.
+- `src/components/readiness-assessment.tsx` — astronaut-facing <3-minute demo flow plus optional task-linked workload capture.
+- `src/routes/mission.readiness.tsx` — `/mission/readiness` route.
+- `tests/domain/p11-cognitive-behavioral.test.ts` — scientific/safety/flow gates.
+- `docs/COGNITIVE_BEHAVIORAL_MODULE.md` — P11 implementation boundary.
+
+### P12 Health Intelligence v1
+
+- `src/domain/health-intelligence/` — governed trend detection, reviewed multi-signal patterns, confidence decomposition and explainable findings.
+- `src/components/health-intelligence.tsx` — P12 explainability/safety surface; never fabricates session evidence.
+- `src/routes/mission.intelligence.tsx` — `/mission/intelligence` route.
+- `tests/domain/p12-health-intelligence.test.ts` — deterministic P12 safety and explainability tests.
+- `scripts/verify-p12.mjs` — structural/scope P12 gate.
+- `docs/HEALTH_INTELLIGENCE_V1.md` — P12 scientific and software boundary.
+
+### P13 Action & Protocol Guidance
+
+- `src/domain/action-guidance/` — bounded protocol library, finding-to-action mapping, governed escalation and acknowledgement contracts.
+- `src/components/action-guidance.tsx` — astronaut-facing protocol-library/safety surface; does not fabricate active findings.
+- `src/routes/mission.guidance.tsx` — `/mission/guidance` route.
+- `tests/domain/p13-action-protocol-guidance.test.ts` — P13 safety, mapping, escalation and acknowledgement tests.
+- `scripts/verify-p13.mjs` — P13 structural/scope gate.
+- `docs/ACTION_PROTOCOL_GUIDANCE.md` — P13 source alignment and non-diagnostic action boundary.
+
+### P14 offline mission mode
+
+- `src/domain/offline-mission/` — offline event, conflict and protocol-cache contracts.
+- `src/infrastructure/offline/` — AES-GCM, IndexedDB store, sync queue/runtime and service-worker registration.
+- `src/components/offline-mission.tsx` / `src/routes/mission.offline.tsx` — offline readiness/status surface.
+- `public/sw.js` — public shell/assets offline cache; no health API caching.
+- `tests/offline/p14-offline-mission.test.ts` — encryption, append-only, reconnect, conflict and protocol-cache gates.
+
+### P15 Ground / Research Console
+
+- `src/domain/ground-research/` — roles, capabilities and de-identification contracts.
+- `src/infrastructure/ground-research/` — authorized cloud sync transport.
+- `src/routes/mission.ground.tsx` — ground/research console route.
+- `supabase/migrations/20260919164826_c7dfa3eb-b9a5-4bce-9ae7-aa4b712120d9.sql` — applied P15 mission persistence, RLS, RPCs and audit trail.
+- `supabase/migrations/20260919164849_0a37122b-370c-4662-9148-8a0b58f146c5.sql` — applied P15 helper-privilege hardening correction.
+
+### P16 security hardening
+
+- `src/security/` — HTTP security-header policy.
+- `docs/security/` — threat model, misuse cases and hardening record.
+- `scripts/security-audit.mjs` — deterministic repository/security-boundary checks.
+- `scripts/migration-policy.mjs` — shared governed-migration allowlist logic.
+- `supabase/migrations/20260919170410_cfadc7d4-72db-42ad-a76e-4181cc0c70f4.sql` — applied P16 RLS/RPC/export hardening.
+- `supabase/migrations/20260919170720_1329f21c-6181-4172-a04d-ced64437d340.sql` — applied P16 pgcrypto/search-path correction.
+- `.github/workflows/security.yml` — vulnerability and secret scan.
+
+### P17 Simulation & Synthetic Mission Dataset
+
+- `src/domain/simulation/` — deterministic scenario manifests, seeded generator, replay and fingerprinting.
+- `src/components/synthetic-mission.tsx` / `src/routes/mission.simulation.tsx` — scenario inspection/export UI at `/mission/simulation`.
+- `data/synthetic/scenario-manifests.v1.json` — public-safe scenario manifest catalogue.
+- `tests/simulation/p17-synthetic-mission.test.ts` — determinism, quality/missingness and scientific guardrail tests.
+- `scripts/verify-p17.mjs` — P17 structural/scope verifier.
+- `docs/SIMULATION_SYNTHETIC_DATASET.md` — source alignment and synthetic-data safety boundary.
+
+### P18 Validation & Usability
+
+- `src/domain/validation-usability/` — validation criteria, limitations and closure logic.
+- `data/validation/p18-evidence.v1.json` — controlled automated/manual evidence ledger.
+- `src/components/validation-usability.tsx` / `src/routes/mission.validation.tsx` — public validation/limitations surface.
+- `tests/validation/p18-validation-usability.test.ts` — fail-closed closure-governance tests.
+- `scripts/verify-p18.mjs` — P18 evidence and structure gate.
+- `docs/VALIDATION_USABILITY.md` / `docs/KNOWN_LIMITATIONS.md` — validation method and explicit product limitations.
+
+## P19 release-candidate additions
+
+- `Dockerfile`, `docker-compose.yml`, `.dockerignore` — self-hosted application packaging.
+- `scripts/setup-local.mjs` — local Supabase bootstrap/reset and browser-safe environment generation.
+- `supabase/seed.sql` — synthetic-only local mission/crew fixture.
+- `scripts/generate-release-sample.ts`, `data/release/` — deterministic P17 sample export path.
+- `docs/LOCAL_REPRODUCIBILITY.md`, `docs/RELEASE_CANDIDATE.md`, `docs/RELEASE_CHECKLIST.md`, `docs/API_ADAPTER_REFERENCE.md` — release documentation.
+- `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` — public contribution intake.
+- `.github/workflows/release-candidate.yml` — source/build/Docker release-candidate verification.
+
+- `scripts/serve-dist.mjs` — Node self-host adapter for the emitted Nitro `.output/server/index.mjs` fetch handler and `.output/public` assets.
+
+### P20 submission package
+
+- `data/submission/` — controlled submission evidence and generated manifest.
+- `src/domain/challenge-submission/` — demo timing, official challenge links and evidence summary logic.
+- `src/routes/mission.submission.tsx` — judge-facing demo/submission route.
+- `docs/CHALLENGE_DEMO_SCRIPT.md`, `VIDEO_STORYBOARD.md`, `DEMO_FALLBACK_RUNBOOK.md`, `POSTER_ARCHITECTURE.md`, `NASA_RESOURCE_ATTRIBUTION.md`, `SUBMISSION_PACKAGE.md`, `JUDGING_ALIGNMENT.md` — presentation and submission controls.
+
+### Recorded mission data
+
+- `src/components/recorded-mission-data.tsx` — local/cloud mission history console.
+- `src/infrastructure/mission-records.ts` — local decrypted projection, RLS-authorized Supabase history and governed sync trigger.
+- `src/routes/mission.records.tsx` — operational `/mission/records` route.
+
+### Cloud/offline deployment readiness
+
+`src/integrations/supabase/config.ts` performs the browser-safe Supabase
+configuration preflight used by mission history and offline synchronization.
+`/mission/offline` and `/mission/records` keep local encrypted data usable when
+cloud configuration or authenticated mission membership is unavailable.
+
+### Mission identity
+
+- `src/components/mission-identity.tsx` — sign-in, membership selection, invite redemption and operator invite issuance.
+- `src/infrastructure/mission-identity.ts` — Supabase Auth/session handling, active mission context and one-time invite RPC client.
+- `src/routes/mission.identity.tsx` — noindex operational identity route.
+- `supabase/migrations/20260920233000_p20_mission_identity_invites.sql` — hashed one-time mission invitations with audited SECURITY DEFINER RPCs.

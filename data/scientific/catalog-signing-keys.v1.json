@@ -1,0 +1,16 @@
+{
+  "schema": "mitochondria.catalog-signing-keys.v1",
+  "governance": "Public Ed25519 keys trusted to sign active-catalog snapshots for offline devices. The private key is derived only on the server from the secret P37_CATALOG_SIGNING_KEY (generated in the encrypted secrets store, never shown); this list holds only the matching public verification key. Empty means no snapshot is trusted and only the bundled catalog is used.",
+  "keys": [
+    {
+      "keyId": "p37-prod-2026-11-08",
+      "environment": "production",
+      "publicKeySpkiBase64": "MCowBQYDK2VwAyEAGp5AC3ihh4rwn9QgS8tYCf9+viC6lxVgeDOw9oe64gQ="
+    },
+    {
+      "keyId": "p37-synthetic-demo-2026-11-07",
+      "environment": "synthetic_demo",
+      "publicKeySpkiBase64": "MCowBQYDK2VwAyEADTXTPrPfwvukD6Kup3+m36GtxO0jKq7Iy87tberawds="
+    }
+  ]
+}

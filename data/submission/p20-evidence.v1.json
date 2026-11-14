@@ -1,0 +1,83 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-10-24T06:45:50Z",
+  "evidence": [
+    {
+      "id": "P20-HW-001",
+      "title": "Real live device path",
+      "critical": true,
+      "status": "ready",
+      "evidence": "Real zero-install physical session recorded on the published console using a Samsung Galaxy S24 with Chrome: Phone Camera PPG connected and produced live physical heart-rate observations that reached the live card/timeline and encrypted local persistence; phone motion also produced physical samples and encrypted writes. The controlled evidence artifact contains no raw health values. See data/submission/p20-real-device-evidence.v1.json."
+    },
+    {
+      "id": "P20-DEMO-001",
+      "title": "Mission Day 127 detect-evaluate-act narrative",
+      "critical": true,
+      "status": "ready",
+      "evidence": "P17 deterministic Mission Day 127 scenario plus P10-P15 runtime surfaces provide the scripted software path."
+    },
+    {
+      "id": "P20-DQ-001",
+      "title": "Data-quality case separated from medical event",
+      "critical": true,
+      "status": "ready",
+      "evidence": "P17 artifact/dropout scenario and P13 DATA QUALITY routing preserve missing/poor data without silent imputation."
+    },
+    {
+      "id": "P20-OFFLINE-001",
+      "title": "Offline operation and later synchronization",
+      "critical": true,
+      "status": "ready",
+      "evidence": "P14 encrypted local queue plus P15 authenticated store-and-forward path are implemented and validated."
+    },
+    {
+      "id": "P20-GROUND-001",
+      "title": "Ground/research synchronized history",
+      "critical": true,
+      "status": "ready",
+      "evidence": "P15 Ground & Research Console and governed backend boundary are implemented."
+    },
+    {
+      "id": "P20-LAB-001",
+      "title": "Visible lab/biomarker provenance",
+      "critical": true,
+      "status": "ready",
+      "evidence": "P7 laboratory ingestion preserves source, specimen, method and reference-context provenance."
+    },
+    {
+      "id": "P20-RC-001",
+      "title": "Independent release-candidate reproduction",
+      "critical": true,
+      "status": "ready",
+      "evidence": "Independent Ubuntu/WSL reproduction completed on canonical commit a2be5b2c6c02a96d5f164cc005768f9aa1250bb6: frozen install, verify:p19, full check, local Supabase from scratch with 7 governed migrations, deterministic sample, Docker self-host build, / and /mission/simulation HTTP smoke tests all passed with no tracked repository drift. See data/submission/p19-independent-reproduction.v1.json."
+    },
+    {
+      "id": "P20-VIDEO-001",
+      "title": "Final challenge video",
+      "critical": true,
+      "status": "ready",
+      "evidence": "Team owner confirmation conveyed by Theodore Silvestros on 2026-10-24: The Mitochondria team created the final three-minute demo video, secured rights and licenses for music, images and narration, secured all required likeness consents, and manually played the public video successfully. Public HTTPS page https://mitochondria.edocinfo.com/competition/demo-video and its actual hosted MP4 were verified accessible at 2026-10-24T06:45:50Z; the unchanged 52,121,799-byte asset has a 180-second duration with H.264 video and AAC audio. See data/submission/p20-final-external-evidence.v1.json. This confirmation does not verify official 2026 submission rules or authorize final submission."
+    },
+    {
+      "id": "P20-ATTR-001",
+      "title": "NASA/Space Apps resources and attribution",
+      "critical": true,
+      "status": "ready",
+      "evidence": "Repository citation and attribution registers identify the challenge and NASA resources without implying endorsement."
+    },
+    {
+      "id": "P20-LIMIT-001",
+      "title": "Known limitations visible",
+      "critical": true,
+      "status": "ready",
+      "evidence": "P18 validation and known-limitations records explicitly state that the prototype is not clinically validated and document hardware limitations."
+    },
+    {
+      "id": "P20-RULES-001",
+      "title": "Official 2026 submission/judging instructions re-check",
+      "critical": true,
+      "status": "pending_external",
+      "evidence": "Re-check the official 2026 submission form, judging instructions and rights requirements immediately before final submission and record the official source plus confirmations in data/submission/p20-final-external-evidence.v1.json."
+    }
+  ]
+}

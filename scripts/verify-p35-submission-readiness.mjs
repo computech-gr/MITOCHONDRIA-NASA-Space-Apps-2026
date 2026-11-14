@@ -1,0 +1,15 @@
+import { readFileSync } from "node:fs";
+const read = path => JSON.parse(readFileSync(path, "utf8"));
+const p34 = read("data/validation/p34-real-device-acceptance.v1.json");
+const p32 = read("data/validation/p32-independent-review-gates.v1.json");
+const ext = read("data/submission/p20-final-external-evidence.v1.json");
+const ui = readFileSync("src/components/challenge-submission.tsx", "utf8");
+const component = readFileSync("src/components/p35-submission-readiness.tsx", "utf8");
+const domain = readFileSync("src/domain/challenge-submission/p35-readiness.ts", "utf8");
+const fail = m => { console.error(`P35 FAIL: ${m}`); process.exit(1); };
+if (p34.cases.length !== 15 || p34.cases.some(c => c.status !== "not_executed")) fail("P34 source-ledger state drift");
+if (p32.gates.length !== 8 || p32.gates.some(g => g.status !== "pending_independent_review")) fail("P32 review-ledger state drift");
+if (ext.video.status === "ready" && (!/^https:\/\//.test(ext.video.publicUrl ?? "") || ext.video.originalTeamCreated !== true || ext.video.rightsAndLicensesConfirmed !== true || ext.video.requiredLikenessConsentsConfirmed !== true || !ext.video.checkedAt)) fail("Video READY requires complete public-video owner confirmation evidence");
+if (ext.official2026SubmissionRules.status !== "pending_external") fail("Official 2026 rules must remain pending external verification");
+if (!ui.includes("<P35SubmissionReadiness />") || !component.includes("Export readiness handoff") || !domain.includes("readyToSubmit")) fail("P35 integration missing");
+console.log(`P35 PASS: submission handoff integrated; 15 device tests not executed; 8 reviews pending; video ${ext.video.status}; official rules pending_external.`);

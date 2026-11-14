@@ -1,0 +1,11 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const ui = fs.readFileSync("src/components/bone-health-import.tsx", "utf8");
+const parser = fs.readFileSync("src/domain/bone-health/import.ts", "utf8");
+for (const token of ["CSV format guide", "Download blank CSV template", "BONE_IMPORT_CSV_TEMPLATE", "synthetic demonstration only", "downloadTemplate", "BoneHealthDocumentImport", "Confirm selected results and save"]) assert.ok(ui.includes(token), `Missing UI token ${token}`);
+for (const h of ["variable", "value", "unit", "observed_at", "source"]) assert.ok(parser.includes(`"${h}"`), `Missing parser header ${h}`);
+const queue = fs.readFileSync("src/domain/bone-health/file-queue.ts", "utf8");
+assert.ok(/parseBoneImport\(text(?:, profile)?\)/.test(queue) && ui.includes("saveBoneEntry"));
+assert.ok(!/[\u0370-\u03FF\u1F00-\u1FFF]/u.test(ui), "Bone Health CSV import UI must be English-only");
+assert.ok(ui.includes("CSV format guide") && ui.includes("Download blank CSV template"));
+console.log("P22.3a CSV guide PASS: format instructions, downloadable blank template, synthetic example, existing review and document import preserved.");

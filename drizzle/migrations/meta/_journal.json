@@ -1,0 +1,202 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791746245022,
+      "tag": "0000_p23_unified_mission_record_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791835688511,
+      "tag": "0001_p24_multi_mission_crew_reuse",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791870848770,
+      "tag": "0002_p28_research_export_privacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791878538447,
+      "tag": "0003_fv01_security_privacy_remediation",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791962320527,
+      "tag": "0004_fv0143_multirole_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791970163622,
+      "tag": "0005_fv0146_mission_audit_viewer",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792071334544,
+      "tag": "0006_p36_biomarker_review_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792071385435,
+      "tag": "0007_p364_synthetic_submission",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792071400886,
+      "tag": "0008_p365_synthetic_review_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792093987809,
+      "tag": "0009_p368a_ground_medical_readonly",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792097047207,
+      "tag": "0010_p368c_research_decisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792887442750,
+      "tag": "0011_medical_v3_synthetic_schema_only",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792906347180,
+      "tag": "0012_medical_demo_activation_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792909198639,
+      "tag": "0013_medical_research_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793559470583,
+      "tag": "0014_v9_review_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793568056988,
+      "tag": "0015_v94_observation_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794036206570,
+      "tag": "0016_p36_dynamic_handoff_tool",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794037266140,
+      "tag": "0017_p36_handoff_executor_insert_remediation",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794037470181,
+      "tag": "0018_p36_dynamic_authorization_tool",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794037798148,
+      "tag": "0019_p36_authorization_executor_insert_remediation",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794037842453,
+      "tag": "0020_p36_authorized_crew_roster",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794041991749,
+      "tag": "0021_p36_global_scientific_review",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794043228170,
+      "tag": "0022_p36_global_triage",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794046329350,
+      "tag": "0023_p37_catalog_activation",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794047887163,
+      "tag": "0024_p37_ground_medical_activation",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794051541810,
+      "tag": "0025_p37_synthetic_demo_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794057135465,
+      "tag": "0026_p38_bulk_synthetic_demo",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794519931713,
+      "tag": "0027_p615_researcher_demo_scope",
+      "breakpoints": true
+    }
+  ]
+}

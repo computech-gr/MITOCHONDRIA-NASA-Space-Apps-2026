@@ -1,0 +1,134 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Reproduce sealed synthetic release sample
+        run: bun run sample:release
+
+      - name: Verify foundation
+        run: bun run verify:foundation
+
+      - name: Verify P3 domain contracts
+        run: bun run verify:p3
+
+      - name: Verify P4 canonical health data
+        run: bun run verify:p4
+
+      - name: Verify P5 device adapter SDK
+        run: bun run verify:p5
+
+      - name: Verify P6 wearables integration
+        run: bun run verify:p6
+
+      - name: Verify P7 medical and lab integration
+        run: bun run verify:p7
+
+      - name: Verify P8 environmental and radiation telemetry
+        run: bun run verify:p8
+      - name: Verify P9 astronaut live dashboard
+        run: bun run verify:p9
+
+      - name: Verify P10 personal baseline engine
+        run: bun run verify:p10
+
+      - name: Verify P11 cognitive and behavioral module
+        run: bun run verify:p11
+
+      - name: Verify P12 Health Intelligence v1
+        run: bun run verify:p12
+
+      - name: Verify P13 Action and Protocol Guidance
+        run: bun run verify:p13
+
+      - name: Verify P14 Offline Mission Mode
+        run: bun run verify:p14
+
+      - name: Verify P15 Ground / Research Console
+        run: bun run verify:p15
+
+      - name: Verify P16 security and safety hardening
+        run: bun run verify:p16
+
+      - name: Verify P17 simulation and synthetic mission dataset
+        run: bun run verify:p17
+
+      - name: Verify P18 validation and usability
+        run: bun run verify:p18
+
+      - name: Verify P19 open-source release candidate
+        run: bun run verify:p19
+
+      - name: Verify P20 challenge submission structure
+        run: bun run verify:p20
+
+      - name: Verify secure bootstrap and auth readiness
+        run: bun run verify:bootstrap-auth-readiness
+
+      - name: Security boundary audit
+        run: bun run security:audit
+
+      - name: Domain and integration tests
+        run: bun run test
+
+      - name: Permanent synthetic policy disposable SQL security
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+          mkdir -p /tmp/mito-ci/socket /tmp/production-synthetic
+          # Immutable migrations use MAINTAIN, introduced in PostgreSQL 17.
+          # Independent disposable socket only; never a managed database target.
+          chmod 777 /tmp/mito-ci/socket
+          docker run --detach --name mito-sql --network none \
+            -e POSTGRES_HOST_AUTH_METHOD=trust \
+            -v /tmp/mito-ci/socket:/var/run/postgresql \
+            postgres:17 -c listen_addresses='' -c port=55432
+          ready=false
+          for attempt in $(seq 1 60); do
+            if pg_isready -h /tmp/mito-ci/socket -p 55432 -U postgres; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then docker logs mito-sql; exit 1; fi
+          export FV01_PG_SOCKET_DIR=/tmp/mito-ci/socket FV0143_INCLUDE_PENDING=1
+          node scripts/verify-medical-v3-production-synthetic.mjs
+          node scripts/verify-synthetic-activation-guard.mjs
+          node scripts/verify-synthetic-research-policy.mjs
+          docker stop mito-sql
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Format check
+        run: bun run format:check
+
+      - name: Production build
+        run: bun run build

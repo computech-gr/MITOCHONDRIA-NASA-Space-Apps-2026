@@ -1,0 +1,279 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "DM Sans", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-deep: var(--deep);
+  --color-signal: var(--signal);
+  --color-quality-good: var(--quality-good);
+  --color-quality-degraded: var(--quality-degraded);
+  --color-severity-red: var(--severity-red);
+  --color-severity-amber: var(--severity-amber);
+  --color-severity-normal: var(--severity-normal);
+  --color-severity-neutral: var(--severity-neutral);
+  --color-review-flag: var(--review-flag);
+}
+
+:root {
+  color-scheme: dark;
+  --radius: 0.25rem;
+  --background: oklch(0.16 0.025 245);
+  --foreground: oklch(0.96 0.012 230);
+  --card: oklch(0.205 0.035 242);
+  --card-foreground: oklch(0.96 0.012 230);
+  --popover: oklch(0.19 0.035 242);
+  --popover-foreground: oklch(0.96 0.012 230);
+  --primary: oklch(0.79 0.145 206);
+  --primary-foreground: oklch(0.145 0.03 244);
+  --secondary: oklch(0.31 0.075 239);
+  --secondary-foreground: oklch(0.96 0.012 230);
+  --muted: oklch(0.225 0.032 242);
+  --muted-foreground: oklch(0.74 0.03 235);
+  --accent: oklch(0.25 0.055 238);
+  --accent-foreground: oklch(0.97 0.01 230);
+  --destructive: oklch(0.62 0.2 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.43 0.055 235 / 42%);
+  --input: oklch(0.43 0.055 235 / 54%);
+  --ring: oklch(0.79 0.145 206);
+  --surface: oklch(0.185 0.031 243);
+  --deep: oklch(0.125 0.028 246);
+  --signal: oklch(0.72 0.17 54);
+  /* P45: data-quality states (not health risk). */
+  --quality-good: oklch(0.78 0.15 155);
+  --quality-degraded: oklch(0.8 0.15 80);
+  /* P54 biomarker severity: always paired with a text marker, never colour alone. */
+  --severity-red: oklch(0.66 0.21 25);
+  --severity-amber: oklch(0.8 0.15 75);
+  --severity-normal: oklch(0.78 0.15 155);
+  --severity-neutral: oklch(0.74 0.03 235);
+  /* P56.1 review-triage flag: deliberately not a clinical severity colour. */
+  --review-flag: oklch(0.76 0.12 240);
+  --primary-glow: oklch(0.79 0.145 206 / 35%);
+  --cyan-haze: oklch(0.68 0.15 215 / 15%);
+  --hero-overlay: oklch(0.11 0.025 245 / 94%);
+  --report-paper: #fff;
+  --report-ink: #183047;
+  --report-heading: #075985;
+  --report-heading-strong: #0c4a6e;
+  --report-muted: #475569;
+  --report-rule: #cbd5e1;
+  --report-border: #bae6fd;
+  --report-cover: #e0f2fe;
+  --report-accent: #0284c7;
+  --report-row: #f0f9ff;
+  --report-warning: #fffbeb;
+  --report-warning-border: #fcd34d;
+  --report-warning-ink: #78350f;
+  --report-shadow: 0 1px 3px #1830471a;
+}
+
+/* P29: paper colors stay scoped to the report, not the dark application shell. */
+.report-print {
+  color-scheme: light;
+  color: var(--report-ink);
+  background: var(--report-paper);
+  border-color: var(--report-border);
+  box-shadow: var(--report-shadow);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  --muted-foreground: var(--report-muted);
+  --severity-red: #b91c1c;
+  --severity-amber: #92400e;
+  --severity-normal: #166534;
+  --severity-neutral: #475569;
+  --review-flag: #1e3a8a;
+}
+.report-print h2 { color: var(--report-heading-strong); letter-spacing: 0; }
+.report-print h3 { color: var(--report-heading); border-bottom: 2px solid var(--report-border); padding-bottom: .4rem; }
+.report-cover { background: var(--report-cover); border-left: 4px solid var(--report-accent); padding: 1rem; }
+.report-disclaimer { background: var(--report-warning); border-color: var(--report-warning-border); color: var(--report-warning-ink); }
+.report-domain-card { background: var(--report-row); border-color: var(--report-border); min-width: 0; overflow-wrap: anywhere; }
+.report-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.report-table th, .report-table td { min-width: 0; padding: .55rem .4rem; vertical-align: top; overflow-wrap: anywhere; word-break: normal; white-space: normal; }
+.report-table thead { background: var(--report-heading-strong); color: var(--report-paper); }
+.report-table th { font-weight: 700; line-height: 1.3; text-align: left; }
+.report-table tbody tr:nth-child(even) { background: var(--report-row); }
+.report-table tbody tr { border-bottom: 1px solid var(--report-rule); }
+.report-table tbody { color: var(--report-ink); }
+.report-evidence-cell, .report-evidence-id { overflow-wrap: anywhere; word-break: normal; }
+.report-col-date { width: 17%; }
+.report-col-source { width: 10%; }
+.report-col-metric { width: 16%; }
+.report-col-result { width: 12%; }
+.report-col-status { width: 13%; }
+.report-col-evidence { width: 32%; }
+.report-col-exclusion-status { width: 15%; }
+.report-col-exclusion-source { width: 15%; }
+.report-col-exclusion-id { width: 30%; }
+.report-col-exclusion-reason { width: 40%; }
+@media screen and (max-width: 639px) {
+  .report-print { padding: .75rem; }
+  .report-cover { padding: .75rem; }
+  .report-table { font-size: .6875rem; line-height: 1.45; }
+  .report-table th, .report-table td { padding: .4rem .15rem; }
+  .report-table td span.rounded { padding: 0; border: 0; }
+}
+@media print {
+  @page { size: A4 portrait; margin: 18mm 12mm 16mm; }
+  html, body { color-scheme: light; width: auto !important; background: var(--report-paper) !important; }
+  body:has(.report-root) > div { padding: 0 !important; }
+  .report-root, .report-print { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: visible !important; }
+  .report-root { margin: 0 !important; padding: 0 !important; }
+  .report-root > .report-print { margin: 0 !important; }
+  .report-print { font-size: 9pt !important; color: var(--report-ink) !important; background: var(--report-paper) !important; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .report-cover { break-inside: avoid; }
+  .report-table { font-size: 7.4pt !important; line-height: 1.45; }
+  .report-table th, .report-table td { padding: 1.5mm 1mm !important; }
+  .report-table tr { break-inside: avoid; page-break-inside: avoid; }
+  .report-print-header, .report-print-footer { color: var(--report-heading); gap: 4mm; overflow-wrap: anywhere; line-height: 1.3; }
+  .report-print-header > span, .report-print-footer > span { min-width: 0; max-width: 55%; }
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; scroll-padding-top: var(--header-offset, 76px); }
+  body { margin: 0; background-color: var(--color-background); color: var(--color-foreground); font-family: var(--font-sans); letter-spacing: 0; }
+  ::selection { background: var(--color-primary); color: var(--color-primary-foreground); }
+  a, button { outline-offset: 4px; }
+}
+
+/* Unlayered so menu cursor-default utilities cannot override affordances. */
+:is(a[href], button, summary, select, input[type="file"], input[type="checkbox"], input[type="radio"], input[type="button"], input[type="submit"], input[type="reset"], input[type="range"], label[for], label:has(input), [role="button"], [role="link"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="option"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"], [role="slider"], [aria-haspopup], [tabindex]):not(:disabled):not([aria-disabled="true"]):not([data-disabled]:not([data-disabled="false"])):not([inert]):not([inert] *):not(input:not([type="file"], [type="checkbox"], [type="radio"], [type="button"], [type="submit"], [type="reset"], [type="range"])):not(textarea) { cursor: pointer; }
+input[type="file"]::file-selector-button { cursor: pointer; }
+:is(:disabled, [aria-disabled="true"], [data-disabled]:not([data-disabled="false"]), [inert], [inert] *, label:has(:disabled), label:has([aria-disabled="true"])), input[type="file"]:disabled::file-selector-button { cursor: not-allowed; }
+label[for]:has(+ :disabled) { cursor: not-allowed; }
+
+@utility section-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  &::before { content: ""; width: 2.25rem; height: 1px; background: currentColor; }
+}
+
+@utility section-title {
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+@utility grid-lines {
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+/* P28 — A4 print layout for the unified health report. */
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 12mm 16mm;
+  }
+  [data-site-header],
+  body footer,
+  nav {
+    display: none !important;
+  }
+  .report-print {
+    font-size: 10pt;
+  }
+  .report-print-header,
+  .report-print-footer {
+    position: static;
+    justify-content: space-between;
+    font-size: 8pt;
+  }
+  .report-print-header {
+    border-bottom: 1px solid var(--report-rule);
+    padding-bottom: 2mm;
+  }
+  .report-print-footer {
+    font-size: 7pt;
+  }
+  .report-table thead {
+    display: table-header-group;
+  }
+  .report-table tr,
+  .report-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .report-print h3 {
+    break-after: avoid;
+  }
+}
+
+/* P30: screen-only medical reporting controls; print palette remains unchanged. */
+@media screen {
+  :root {
+    --medical-action-primary: #087f9c;
+    --medical-action-on-primary: #ffffff;
+    --medical-action-primary-hover: #065e76;
+    --medical-action-secondary: #eff8ff;
+    --medical-action-on-secondary: #123e63;
+    --medical-action-secondary-border: #4c82a5;
+    --medical-action-secondary-hover: #dbeefa;
+    --medical-action-on-secondary-hover: #092c4c;
+    --medical-action-disabled: #d5dce4;
+    --medical-action-on-disabled: #475569;
+    --medical-action-disabled-border: #8998aa;
+    --medical-advisor-field: #f8fbff;
+    --medical-advisor-field-ink: #132f4a;
+    --medical-advisor-field-border: #7c9bb4;
+    --medical-advisor-caret: #075985;
+    --medical-advisor-placeholder: #526b82;
+    --medical-control-focus: #f4b740;
+  }
+  .medical-report-ui .medical-action-primary,
+  .medical-action-primary { background-color: var(--medical-action-primary); color: var(--medical-action-on-primary); border: 1px solid var(--medical-action-primary); font-weight: 650; }
+  .medical-report-ui .medical-action-primary:hover:not(:disabled),
+  .medical-action-primary:hover:not(:disabled) { background-color: var(--medical-action-primary-hover); color: var(--medical-action-on-primary); }
+  .medical-report-ui .medical-action-secondary,
+  .medical-action-secondary { background-color: var(--medical-action-secondary); color: var(--medical-action-on-secondary); border: 1px solid var(--medical-action-secondary-border); font-weight: 650; }
+  .medical-report-ui .medical-action-secondary:hover:not(:disabled),
+  .medical-action-secondary:hover:not(:disabled) { background-color: var(--medical-action-secondary-hover); color: var(--medical-action-on-secondary-hover); }
+  .medical-report-ui :is(.medical-action-primary,.medical-action-secondary):disabled,
+  :is(.medical-action-primary,.medical-action-secondary):disabled { opacity: 1; background-color: var(--medical-action-disabled); color: var(--medical-action-on-disabled); border: 1px solid var(--medical-action-disabled-border); cursor: not-allowed; }
+  .medical-advisor-input { background-color: var(--medical-advisor-field); color: var(--medical-advisor-field-ink); border: 1px solid var(--medical-advisor-field-border); caret-color: var(--medical-advisor-caret); }
+  .medical-advisor-input::placeholder { color: var(--medical-advisor-placeholder); }
+  :is(.medical-action-primary,.medical-action-secondary,.medical-advisor-input):focus-visible { outline: 3px solid var(--medical-control-focus); outline-offset: 2px; }
+}

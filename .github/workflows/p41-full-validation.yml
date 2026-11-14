@@ -1,0 +1,49 @@
+name: P47 Competition Submission Validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Report validated commit
+        run: echo "Validated commit $GITHUB_SHA on ref $GITHUB_REF"
+      - name: Full repository validation
+        run: bun run check
+      - name: P37 scientific intake verifier
+        run: node scripts/verify-nikolas-scientific-intake.mjs
+      - name: P38 reconciliation verifier
+        run: node scripts/verify-p38-nikolas-reconciliation.mjs
+      - name: P39 scientific mapping verifier
+        run: node scripts/verify-p39-semantic-review.mjs
+      - name: P40 scientific review verifier
+        run: node scripts/verify-p40-independent-review.mjs
+      - name: P41 scientific workbook verifier
+        run: node scripts/verify-p41-review-workbook.mjs
+      - name: P41.2 validation handoff verifier
+        run: node scripts/verify-p41-validation-completion.mjs
+      - name: P42 scientific triage verifier
+        run: node scripts/verify-p42-semantic-triage.mjs
+      - name: P43 scientific decisions verifier
+        run: node scripts/verify-p43-semantic-decisions.mjs
+      - name: P44 research explorer verifier
+        run: node scripts/verify-p44-research-explorer.mjs
+      - name: P45 research explorer UX verifier
+        run: node scripts/verify-p45-final-ux.mjs
+      - name: P46 evidence freeze verifier
+        run: node scripts/verify-p46-evidence-freeze.mjs
+      - name: P47 competition handoff verifier
+        run: node scripts/verify-p47-competition-handoff.mjs

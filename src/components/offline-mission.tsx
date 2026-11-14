@@ -1,0 +1,282 @@
+import { useCallback, useEffect, useState } from "react";
+import { OfflineAutonomy } from "@/components/offline-autonomy";
+import {
+  CheckCircle2,
+  Cloud,
+  CloudOff,
+  Database,
+  LockKeyhole,
+  RefreshCw,
+  LogIn,
+  ShieldCheck,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  getOfflineMissionStatus,
+  initializeOfflineMissionRuntime,
+} from "@/infrastructure/offline";
+import { getCloudMissionContext, loadRecordedMissionData, syncRecordedMissionQueue } from "@/infrastructure/mission-records";
+import type { OfflineSyncQueueItem, OfflineMissionStatus } from "@/domain/offline-mission";
+
+const emptyStatus: OfflineMissionStatus = {
+  supported: false,
+  encryptedStoreReady: false,
+  protocolCacheReady: false,
+  serviceWorkerState: "not_registered",
+  connectivity: "unknown",
+  pendingSyncItems: 0,
+  reviewSyncItems: 0,
+  conflictItems: 0,
+  storedRecords: 0,
+};
+
+function StatusLine({ ok, label, detail }: { ok: boolean; label: string; detail: string }) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border border-border/70 bg-background/40 p-3">
+      {ok ? (
+        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-400" />
+      ) : (
+        <CloudOff className="mt-0.5 size-4 shrink-0 text-amber-400" />
+      )}
+      <div>
+        <p className="text-sm font-medium">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+export function OfflineMissionPage() {
+  const [status, setStatus] = useState<OfflineMissionStatus>(emptyStatus);
+  const [busy, setBusy] = useState(true);
+  const [syncBusy, setSyncBusy] = useState(false);
+  const [cloudState, setCloudState] = useState<"checking" | "configuration_required" | "local_only" | "authenticated" | "error">("checking");
+  const [reviewItems, setReviewItems] = useState<OfflineSyncQueueItem[]>([]);
+  const [evidence, setEvidence] = useState<{ matched: number; missing: number; checked: number; cloudError?: string; limited?: boolean } | null>(null);
+  const [evidenceBusy, setEvidenceBusy] = useState(false);
+  const [cloudDetail, setCloudDetail] = useState("Checking governed Supabase access…");
+
+  const refresh = useCallback(async () => {
+    setBusy(true);
+    try {
+      await initializeOfflineMissionRuntime();
+      setStatus(await getOfflineMissionStatus());
+      const { getOfflineMissionStore } = await import("@/infrastructure/offline");
+      const queue = await getOfflineMissionStore().listQueueItems();
+      setReviewItems(queue.filter((item) => item.state === "needs_review"));
+      const cloud = await getCloudMissionContext();
+      if (cloud.configuration === "missing") {
+        setCloudState("configuration_required");
+        setCloudDetail(
+          "Cloud synchronization is not configured for this published deployment. Encrypted local capture and review remain available.",
+        );
+      } else if (cloud.error) {
+        setCloudState("error");
+        setCloudDetail(cloud.error);
+      } else if (!cloud.signedIn) {
+        setCloudState("local_only");
+        setCloudDetail("No signed-in mission identity. Encrypted local capture continues; Supabase sync remains locked.");
+      } else {
+        setCloudState("authenticated");
+        setCloudDetail(`${cloud.memberships.length} active mission membership(s) available for governed cloud access.`);
+      }
+    } catch (error) {
+      setCloudState("error");
+      setCloudDetail(error instanceof Error ? error.message : "Cloud status check failed.");
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+
+  const syncNow = useCallback(async () => {
+    setSyncBusy(true);
+    try {
+      const result = await syncRecordedMissionQueue();
+      if (result === "configuration_required") {
+        setCloudState("configuration_required");
+        setCloudDetail(
+          "Cloud synchronization is not configured for this published deployment. Local encrypted capture is unaffected.",
+        );
+      } else if (result === "anonymous") {
+        setCloudState("local_only");
+        setCloudDetail("Cloud sync requires a signed-in user with an active mission membership. Local encrypted capture is unaffected.");
+      } else if (result === "unavailable") {
+        setCloudDetail("Cloud sync is unavailable while this device is offline.");
+      } else {
+        setCloudState("authenticated");
+        setCloudDetail("Governed Supabase synchronization completed.");
+      }
+      setStatus(await getOfflineMissionStatus());
+    } catch (error) {
+      setCloudState("error");
+      setCloudDetail(error instanceof Error ? error.message : "Cloud synchronization failed");
+      setStatus(await getOfflineMissionStatus());
+    } finally {
+      setSyncBusy(false);
+    }
+  }, []);
+
+  const verifyCloudEvidence = useCallback(async () => {
+    setEvidenceBusy(true);
+    setEvidence(null);
+    try {
+      const dataset = await loadRecordedMissionData(300);
+      if (!dataset.cloudContext.signedIn || dataset.cloudContext.error || !dataset.cloudContext.memberships.length) {
+        setEvidence({ matched: 0, missing: 0, checked: 0, cloudError: dataset.cloudContext.error ?? "Sign in with an authorized mission membership to verify cloud evidence." });
+        return;
+      }
+      if (dataset.cloudContext.error) {
+        setEvidence({ matched: 0, missing: 0, checked: 0, cloudError: dataset.cloudContext.error });
+        return;
+      }
+      const cloudIds = new Set(dataset.cloud.map((row) => row.id));
+      const synced = dataset.local.filter((row) => row.syncState === "synced");
+      setEvidence({
+        checked: synced.length,
+        matched: synced.filter((row) => cloudIds.has(row.id)).length,
+        missing: synced.filter((row) => !cloudIds.has(row.id)).length,
+        limited: dataset.cloud.length >= 300 || dataset.local.length >= 300,
+      });
+    } catch (error) {
+      setEvidence({ matched: 0, missing: 0, checked: 0, cloudError: error instanceof Error ? error.message : "Evidence check failed" });
+    } finally {
+      setEvidenceBusy(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+    const updateConnectivity = () => void refresh();
+    window.addEventListener("online", updateConnectivity);
+    window.addEventListener("offline", updateConnectivity);
+    return () => {
+      window.removeEventListener("online", updateConnectivity);
+      window.removeEventListener("offline", updateConnectivity);
+    };
+  }, [refresh]);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+
+      <main className="mx-auto max-w-6xl px-5 py-8 lg:px-8">
+        <section className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p className="section-kicker">Offline Mission Mode · mission autonomy</p>
+            <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">
+              Earth can disappear. <span className="text-primary">The health loop must not.</span>
+            </h1>
+            <p className="mt-4 max-w-3xl leading-7 text-muted-foreground">
+              P14 keeps mission health data encrypted locally, preserves reviewed protocol content, and queues records for deterministic store-and-forward synchronization. The cloud is not in the critical sensor-to-astronaut path.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline"><a href="/mission/records"><Database />Recorded data</a></Button>
+            <Button onClick={() => void syncNow()} disabled={syncBusy || status.connectivity !== "online"}><Cloud className={syncBusy ? "animate-pulse" : ""} />Sync now</Button>
+            <Button onClick={() => void refresh()} disabled={busy} variant="secondary"><RefreshCw className={busy ? "animate-spin" : ""} />Refresh status</Button>
+            {cloudState === "local_only" ? <Button asChild variant="outline"><a href="/mission/identity"><LogIn />Mission sign-in</a></Button> : null}
+          </div>
+        </section>
+
+        <OfflineAutonomy />
+
+        <h2 id="offline-state-heading" className="mt-10 font-display text-2xl font-semibold">Local mission state</h2>
+        <section aria-labelledby="offline-state-heading" className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><LockKeyhole className="text-primary" />Encrypted local store</CardTitle></CardHeader>
+            <CardContent><p className="font-mono text-xl">{status.encryptedStoreReady ? "READY" : "NOT READY"}</p><p className="mt-2 text-xs text-muted-foreground">AES-GCM encrypted records; non-extractable device-local key held by the browser origin.</p></CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><Database className="text-primary" />Local records</CardTitle></CardHeader>
+            <CardContent><p className="font-mono text-2xl">{status.storedRecords}</p><p className="mt-2 text-xs text-muted-foreground">Append-only encrypted event records available on this device.</p></CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><Cloud className="text-primary" />Sync queue</CardTitle></CardHeader>
+            <CardContent><p className="font-mono text-2xl">{status.pendingSyncItems}</p><p className="mt-2 text-xs text-muted-foreground">Pending and retryable failures only. Records requiring review are excluded.</p></CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><ShieldCheck className="text-primary" />Protocol cache</CardTitle></CardHeader>
+            <CardContent><p className="font-mono text-xl">{status.protocolCacheReady ? "READY" : "NOT READY"}</p><p className="mt-2 text-xs text-muted-foreground">Versioned P13 protocol definitions are cached locally with SHA-256 integrity metadata.</p></CardContent>
+          </Card>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-border bg-card/60 p-4" aria-label="Sync records requiring review">
+          <p className="text-sm font-semibold">Records requiring review: {status.reviewSyncItems ?? 0}</p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">These encrypted records were definitively rejected by the cloud and are not retried automatically. They remain on this device. Do not reassign old placeholder records to a real astronaut automatically. Contact an authorized mission administrator for reviewed remediation; no automatic reset or deletion is available.</p>
+        </section>
+        <section className="mt-4 rounded-lg border border-border bg-card/60 p-4" aria-label="Read-only rejected record review">
+          <h3 className="text-sm font-semibold">Review queue (read-only)</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Record identifiers and rejection reasons only. No medical payload is displayed or modified. Do not assign placeholder records to an astronaut without independent provenance review.</p>
+          {reviewItems.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">No records awaiting review on this device.</p> : (
+            <ul className="mt-3 space-y-2">
+              {reviewItems.slice(0, 20).map((item) => (
+                <li key={item.id} className="rounded-md border border-border/70 p-2 text-xs">
+                  <p className="font-mono break-all">Record: {item.recordId}</p>
+                  <p className="mt-1 text-muted-foreground break-words">Reason: {item.lastError ?? "Unspecified rejection"}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+          {reviewItems.length > 20 ? <p className="mt-2 text-xs text-muted-foreground">Showing the first 20 of {reviewItems.length} records.</p> : null}
+        </section>
+        <section className="mt-4 rounded-lg border border-border bg-card/60 p-4" aria-label="Read-only cloud persistence evidence">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><h3 className="text-sm font-semibold">Cloud persistence evidence</h3><p className="mt-1 text-xs text-muted-foreground">Read-only comparison of locally synced event IDs with cloud event IDs visible to your authorized account (up to 300 records per side).</p></div>
+            <Button variant="outline" disabled={evidenceBusy || cloudState !== "authenticated"} onClick={() => void verifyCloudEvidence()}>{evidenceBusy ? "Checking…" : "Verify cloud records"}</Button>
+          </div>
+          {evidence ? <p role="status" className="mt-3 text-sm">{evidence.cloudError ?? `Matched ${evidence.matched} of ${evidence.checked} locally synced records; ${evidence.missing} not found in the limited cloud query.${evidence.limited ? " Results reached the 300-record limit; unmatched entries are inconclusive." : ""}`}</p> : null}
+          <p className="mt-2 text-xs text-muted-foreground">A match is useful evidence, not a real-device end-to-end certification. Missing matches can also reflect query limits or access policy. No test data is created and no records are changed.</p>
+        </section>
+        <section className="mt-4 rounded-lg border border-border bg-card/60 p-4" aria-label="Authenticated persistence validation guide">
+          <h3 className="text-sm font-semibold">Authenticated persistence validation</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Manual research-only test protocol. This panel does not create records, change memberships or simulate a sign-in.</p>
+          <ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-5 text-muted-foreground">
+            <li>Sign in through <a className="underline text-primary" href="/mission/identity">Mission identity</a> with a provisioned crew-self membership; select the correct active mission.</li>
+            <li>Confirm Bone Health mission and crew selectors display only authorized choices. Use clearly labelled synthetic values, never real patient data.</li>
+            <li>Record a synthetic measurement in the supported capture flow, then return here and select Sync now while online.</li>
+            <li>Select Verify cloud records. Inspect mission_events and crew_health_record_index under the same authorized mission and crew; confirm event ID, metric and idempotency.</li>
+            <li>Repeat offline capture and online reconnection on a real device; separately test ground medical visibility and crew isolation with approved test accounts.</li>
+          </ol>
+          <p className="mt-3 text-xs text-muted-foreground">Current access: {cloudState === "authenticated" ? "signed in; confirm active crew membership before capture" : "authentication or cloud configuration required"}. A cloud match alone does not prove camera or offline-device validation.</p>
+        </section>
+        <section className="mt-8 rounded-lg border border-border bg-card/60 p-4" aria-label="Governed cloud synchronization status">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold">Supabase synchronization boundary</p>
+              <p className="mt-1 text-sm text-muted-foreground">{cloudDetail}</p>
+            </div>
+            <span className={`rounded-md border px-3 py-1 font-mono text-xs ${cloudState === "authenticated" ? "border-emerald-400/40 text-emerald-300" : cloudState === "error" ? "border-rose-400/40 text-rose-300" : "border-amber-400/40 text-amber-300"}`}>{cloudState.replaceAll("_", " ").toUpperCase()}</span>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">Mission events are never written anonymously. When authenticated mission membership is unavailable, records remain encrypted on this device and queued for later idempotent synchronization.</p>
+        </section>
+
+        <h2 id="offline-readiness-heading" className="mt-12 font-display text-2xl font-semibold">Offline readiness and autonomy</h2>
+        <section aria-labelledby="offline-readiness-heading" className="mt-5 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <Card className="bg-card/70">
+            <CardHeader><CardTitle>Offline readiness</CardTitle></CardHeader>
+            <CardContent className="grid gap-3">
+              <StatusLine ok={status.connectivity === "online"} label={`Connectivity: ${status.connectivity.toUpperCase()}`} detail="Local monitoring and storage do not require network connectivity. Connectivity only affects remote synchronization." />
+              <StatusLine ok={status.serviceWorkerState === "ready"} label={`Application shell: ${status.serviceWorkerState.replaceAll("_", " ").toUpperCase()}`} detail="The service worker caches only public shell/assets. It deliberately does not cache health API responses." />
+              <StatusLine ok={status.conflictItems === 0} label={`Sync conflicts: ${status.conflictItems}`} detail="Conflict resolution is deterministic by payload identity, source version, event timestamp and source priority; ambiguous ties require manual review." />
+              <StatusLine ok={!status.lastError} label={status.lastError ? "Runtime issue detected" : "Runtime health nominal"} detail={status.lastError ?? "No local offline runtime error is currently recorded."} />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-deep">
+            <CardHeader><CardTitle>What continues without Earth</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
+              <p>• Live device streams continue locally when the device transport itself is available.</p>
+              <p>• Accepted observations and private readiness records can be encrypted into the append-only local event store.</p>
+              <p>• P12 intelligence and P13 protocol logic remain local, deterministic software modules.</p>
+              <p>• Reviewed P13 protocols are cached locally with version/authority integrity metadata.</p>
+              <p>• Remote synchronization is transport-agnostic. P14 provides queue/conflict semantics; the secure Supabase persistence target is connected with the ground/backend work rather than granting unsafe browser write access here.</p>
+              {status.lastSyncAt && <p className="pt-2 font-mono text-xs">Last successful transport sync: {new Date(status.lastSyncAt).toLocaleString()}</p>}
+            </CardContent>
+          </Card>
+        </section>
+      </main>
+    </div>
+  );
+}
